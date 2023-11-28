@@ -20,18 +20,20 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+
+import image.Image;
+import interfaces.ImageChangeListener;
+
 import java.io.File;
 import javax.imageio.ImageIO;
 
 class OpenImageButton extends JButton {
-    private BufferedImage image;
-
-    public OpenImageButton(Font customFont) {
+    private Image image;
+    public OpenImageButton(Font customFont, ImagePanel imagePanel, ImageChangeListener listener) {
         setText("Open Image");
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(10, 10, 10, 10)));
         setMaximumSize(new Dimension(250, getPreferredSize().height)); // Set maximum width
         setFont(customFont);
-
         addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -40,13 +42,22 @@ class OpenImageButton extends JButton {
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     try {
-                        image = ImageIO.read(selectedFile);
-                        if (image == null) {
-                            throw new Exception("Image is null.");
+//                        Clear the old image from memory
+                        if (image != null) {
+                            image.flush();
+                            image = null;
                         }
-                        // Pass the image to other area to process it
-                        // processImage(image);
-                        JOptionPane.showMessageDialog(null, "Image opened successfully.");
+                        System.gc();
+
+//                        Load the new image
+                        BufferedImage bufferedImage = ImageIO.read(selectedFile);
+                        if (bufferedImage == null) {
+                            throw new Exception("The selected file is not an image. Please select an image file.");
+                        }
+                        image = new Image(bufferedImage);
+                        bufferedImage.flush();
+                        imagePanel.setImage(image.convertToBlackAndWhite(128).resize(840, 840));
+                        listener.onImageChange(image);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Error occurred while opening the image file. " + ex.getMessage());
                     }
@@ -54,7 +65,16 @@ class OpenImageButton extends JButton {
             }
         });
     }
-    public BufferedImage getImage() {
-        return image;
+
+    public Image getImage() {
+        try {
+            if (image == null) {
+                throw new NullPointerException("No image is loaded.");
+            }
+            return image;
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(null, "No image is loaded.");
+            return null;
+        }
     }
 }

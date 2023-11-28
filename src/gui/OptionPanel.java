@@ -1,31 +1,68 @@
 package gui;
 
+import image.Image;
+import interfaces.ImageChangeListener;
+import interfaces.ContrastNSmoothnessListener;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import java.awt.*;
 
-public class OptionPanel extends JPanel {
-    public OptionPanel() {
+public class OptionPanel extends JPanel implements ImageChangeListener, ContrastNSmoothnessListener {
+    private Image image;
+    private Image bwImage;
+    private int contrast = 128;
+    private int smoothness = 0;
+
+    public OptionPanel(TextPanel textPanel) {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(2, 2, 2, 2)));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         ImagePanel imagePanel = new ImagePanel();
         add(imagePanel);
 
-        ButtonPanel buttonPanel = new ButtonPanel();
+        ButtonPanel buttonPanel = new ButtonPanel(imagePanel, textPanel, this);
         add(buttonPanel);
+    }
+
+    public void onImageChange(Image image) {
+        this.image = image;
+    }
+    public void onBWImageChange(Image image) {
+        this.bwImage = image;
+    }
+    public Image getImage() {
+        return image;
+    }
+    public Image getBWImage() {
+        return bwImage;
+    }
+    public void onContrastChange(int contrast) {
+        this.contrast = contrast;
+    }
+    public void onSmoothnessChange(int smoothness) {
+        this.smoothness = smoothness;
+    }
+    public int getContrast() {
+        return contrast;
+    }
+    public int getSmoothness() {
+        return smoothness;
     }
 }
 
 class ImagePanel extends JPanel {
     public ImagePanel() {
-        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(2, 2, 2, 2)));
+//        setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(2, 2, 2, 2)));
         setBackground(Color.WHITE);
     }
-
+    public void setImage(Image image) {
+        removeAll();
+        add(new JLabel(new ImageIcon(image)));
+        revalidate();
+        repaint();
+    }
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(850, 850);
@@ -33,11 +70,11 @@ class ImagePanel extends JPanel {
 }
 
 class ButtonPanel extends JPanel {
-    public ButtonPanel() {
+    public ButtonPanel(ImagePanel imagePanel,TextPanel textPanel, OptionPanel optionPanel) {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(2, 2, 2, 2)));
         setLayout(new BorderLayout());
 
-        ImageToolsPanel imageToolsPanel = new ImageToolsPanel();
+        ImageToolsPanel imageToolsPanel = new ImageToolsPanel(imagePanel,textPanel, optionPanel);
         add(imageToolsPanel, BorderLayout.WEST);
 
         CropToolsPanel cropToolsPanel = new CropToolsPanel();
@@ -46,44 +83,46 @@ class ButtonPanel extends JPanel {
 }
 
 class ImageToolsPanel extends JPanel {
-    public ImageToolsPanel() {
+    public ImageToolsPanel(ImagePanel imagePanel,TextPanel textPanel, OptionPanel optionPanel) {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(2, 2, 2, 2)));
         setLayout(new BorderLayout());
 
-        ImageToolsButtons buttonsPanel = new ImageToolsButtons();
+        ImageToolsButtons buttonsPanel = new ImageToolsButtons(imagePanel,textPanel, optionPanel);
         add(buttonsPanel, BorderLayout.WEST);
 
-        ImageToolsSlider sliderPanel = new ImageToolsSlider();
+        ImageToolsSlider sliderPanel = new ImageToolsSlider(optionPanel);
         add(sliderPanel, BorderLayout.EAST);
 
     }
 }
 
 class ImageToolsButtons extends JPanel {
-    public ImageToolsButtons() {
+    Image image;
+
+    public ImageToolsButtons(ImagePanel imagePanel,TextPanel textPanel, OptionPanel optionPanel) {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 0), new EmptyBorder(2, 2, 2, 2)));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Font customFont = new Font("Arial", Font.PLAIN, 16);
 
         add(Box.createRigidArea(new Dimension(0, 20)));
 
-        OpenImageButton openImageButton = new OpenImageButton(customFont);
+        OpenImageButton openImageButton = new OpenImageButton(customFont, imagePanel, optionPanel);
         add(openImageButton);
 
         add(Box.createRigidArea(new Dimension(0, 15)));
 
-        UpdateImageButton updateImageButton = new UpdateImageButton(customFont);
+        UpdateImageButton updateImageButton = new UpdateImageButton(customFont, imagePanel, optionPanel);
         add(updateImageButton);
 
         add(Box.createRigidArea(new Dimension(0, 15)));
 
-        ConvertToTextButton convertToTextButton = new ConvertToTextButton(customFont);
+        ConvertToTextButton convertToTextButton = new ConvertToTextButton(customFont, textPanel, optionPanel);
         add(convertToTextButton);
     }
 }
 
 class ImageToolsSlider extends JPanel {
-    public ImageToolsSlider() {
+    public ImageToolsSlider(OptionPanel optionPanel) {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 0), new EmptyBorder(2, 2, 2, 2)));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Font customFont = new Font("Arial", Font.PLAIN, 16);
@@ -92,7 +131,7 @@ class ImageToolsSlider extends JPanel {
 
         JLabel contrastLabel = new JLabel("Contrast: 128");
         contrastLabel.setFont(customFont);
-        Slider contrastSlider = new Slider(1, 255, 128, contrastLabel, "Contrast");
+        Slider contrastSlider = new Slider(1, 255, 128, "Contrast", contrastLabel, optionPanel);
         add(contrastSlider);
         add(contrastLabel);
 
@@ -100,7 +139,7 @@ class ImageToolsSlider extends JPanel {
 
         JLabel smoothnessLabel = new JLabel("Smoothness: 0");
         smoothnessLabel.setFont(customFont);
-        Slider smoothnessSlider = new Slider(0, 100, 0, smoothnessLabel, "Smoothness");
+        Slider smoothnessSlider = new Slider(0, 100, 0, "Smoothness", smoothnessLabel, optionPanel);
         add(smoothnessSlider);
         add(smoothnessLabel);
     }
@@ -108,8 +147,8 @@ class ImageToolsSlider extends JPanel {
 
 class CropToolsPanel extends JPanel {
     public CropToolsPanel() {
-        setLayout(new BorderLayout());
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(2, 2, 2, 2)));
+        setLayout(new BorderLayout());
         CropToolsButtonsPanel cropToolsButtonsPanel = new CropToolsButtonsPanel();
         add(cropToolsButtonsPanel, BorderLayout.WEST);
 

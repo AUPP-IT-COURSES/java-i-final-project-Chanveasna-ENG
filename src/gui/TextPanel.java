@@ -8,11 +8,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 public class TextPanel extends JPanel{
+    private Text textField;
     public TextPanel() {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(2, 2, 2, 2)));
         setLayout(new BorderLayout());
-        Text textField = new Text();
+        textField = new Text();
         add(textField);
+    }
+    public void setText(String text) {
+        textField.setText(text);
     }
 }
 

@@ -19,10 +19,10 @@ class MainFrame extends JFrame {
         setSize(1500, 1000);
         setLayout(new BorderLayout());
 
-        OptionPanel optionPanel = new OptionPanel();
-        add(optionPanel, BorderLayout.WEST);
-
         TextPanel textPanel = new TextPanel();
         add(textPanel);
+
+        OptionPanel optionPanel = new OptionPanel(textPanel);
+        add(optionPanel, BorderLayout.WEST);
     }
 }

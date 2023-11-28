@@ -7,7 +7,7 @@ import java.awt.*;
 
 class Slider extends JSlider {
 
-    public Slider(int min, int max, int value, JLabel label, String name) {
+    public Slider(int min, int max, int value, String name, JLabel label, OptionPanel listener) {
         super(JSlider.HORIZONTAL, min, max, value);
         setMajorTickSpacing(1);
         setPaintTicks(true);
@@ -15,7 +15,13 @@ class Slider extends JSlider {
         addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 label.setText(name + ": " + getValue());
+                if (name.equals("Contrast")) {
+                    listener.onContrastChange(getValue());
+                } else if (name.equals("Smoothness")) {
+                    listener.onSmoothnessChange(getValue());
+                }
             }
         });
     }
+
 }
