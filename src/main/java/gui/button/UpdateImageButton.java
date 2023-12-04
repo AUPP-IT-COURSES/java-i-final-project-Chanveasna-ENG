@@ -1,14 +1,15 @@
-package gui;
+package gui.button;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.Font;
+import java.awt.Color;
+import java.awt.Dimension;
+import classes.Image;
+import gui.ImagePanel;
+import gui.OptionPanel;
 
-import image.Image;
-import interfaces.ContrastNSmoothnessListener;
-import interfaces.ImageChangeListener;
-
-class UpdateImageButton extends JButton {
+public class UpdateImageButton extends JButton {
     public UpdateImageButton(Font customFont, ImagePanel imagePanel, OptionPanel listener) {
         setText("Update Image");
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(10, 10, 10, 10)));

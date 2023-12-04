@@ -12,7 +12,7 @@
 //        setFont(customFont);
 //    }
 //}
-package gui;
+package gui.button;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,13 +21,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
-import image.Image;
+import classes.CropTool;
+import classes.Image;
+import gui.ImagePanel;
 import interfaces.ImageChangeListener;
 
 import java.io.File;
 import javax.imageio.ImageIO;
 
-class OpenImageButton extends JButton {
+public class OpenImageButton extends JButton {
     private Image image;
     public OpenImageButton(Font customFont, ImagePanel imagePanel, ImageChangeListener listener) {
         setText("Open Image");
@@ -58,6 +60,8 @@ class OpenImageButton extends JButton {
                         bufferedImage.flush();
                         imagePanel.setImage(image.convertToBlackAndWhite(128).resize(840, 840));
                         listener.onImageChange(image);
+                        listener.onBWImageChange(image.convertToBlackAndWhite(128));
+                        CropTool.resetPoints();
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Error occurred while opening the image file. " + ex.getMessage());
                     }

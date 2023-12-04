@@ -3,8 +3,13 @@ import java.awt.*;
 
 import gui.OptionPanel;
 import gui.TextPanel;
+import org.opencv.core.Core;
 
 public class DocScanner {
+    static {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    }
+
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();
         mainFrame.setVisible(true);
