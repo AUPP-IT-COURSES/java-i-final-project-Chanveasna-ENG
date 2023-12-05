@@ -1,13 +1,13 @@
-package gui;
+package gui.button;
 
-import image.Image;
-import interfaces.ImageChangeListener;
+import gui.OptionPanel;
+import gui.TextPanel;
 import net.sourceforge.tess4j.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-class ConvertToTextButton extends JButton {
+public class ConvertToTextButton extends JButton {
     public ConvertToTextButton(Font customFont, TextPanel textPanel, OptionPanel listener) {
         setText("Convert to Text");
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1), new EmptyBorder(10, 10, 10, 10)));
@@ -17,6 +17,7 @@ class ConvertToTextButton extends JButton {
             if (listener.getBWImage() != null) {
                 try {
                     ITesseract instance = new Tesseract();
+                    instance.setDatapath("C:\\Program Files\\Tesseract-OCR\\tessdata");
                     String result = instance.doOCR(listener.getBWImage());
                     textPanel.setText(result);
                 } catch (TesseractException ex) {

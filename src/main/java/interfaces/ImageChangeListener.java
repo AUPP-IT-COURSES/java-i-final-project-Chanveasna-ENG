@@ -1,6 +1,6 @@
 package interfaces;
 
-import image.Image;
+import classes.Image;
 
 public interface ImageChangeListener {
     void onImageChange(Image image);

@@ -1,4 +1,4 @@
-package image;
+package classes;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -14,6 +14,20 @@ public class Image extends BufferedImage {
     }
 
     public Image resize(int newWidth, int newHeight) {
+        int[] dimension = getResizeDimensions(newWidth, newHeight);
+        newWidth = dimension[0];
+        newHeight = dimension[1];
+        java.awt.Image scaledImage = getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, getType());
+
+        Graphics g = resizedImage.getGraphics();
+        g.drawImage(scaledImage, 0, 0, null);
+        g.dispose();
+
+        return new Image(resizedImage);
+    }
+
+    public int[] getResizeDimensions(int newWidth, int newHeight) {
         int width = getWidth();
         int height = getHeight();
 
@@ -23,14 +37,7 @@ public class Image extends BufferedImage {
             newHeight = height * newWidth / width;
         }
 
-        java.awt.Image scaledImage = getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
-        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, getType());
-
-        Graphics g = resizedImage.getGraphics();
-        g.drawImage(scaledImage, 0, 0, null);
-        g.dispose();
-
-        return new Image(resizedImage);
+        return new int[]{newWidth, newHeight};
     }
 
     public Image convertToBlackAndWhite(int buckets) {
@@ -70,8 +77,8 @@ public class Image extends BufferedImage {
         float sigmaRoot = (float) Math.sqrt(twoSigmaSquare * Math.PI);
         float total = 0;
 
-        int index = 0;
         for (int y = -radius; y <= radius; y++) {
+            int index = 0; // Reset index to 0 at the start of each iteration of the outer loop
             for (int x = -radius; x <= radius; x++) {
                 float distance = x * x + y * y;
                 data[index] = (float) Math.exp(-distance / twoSigmaSquare) / sigmaRoot;
@@ -99,12 +106,15 @@ public class Image extends BufferedImage {
         float total = 0;
 
         int index = 0;
+        outer:
         for (int y = -size / 2; y <= size / 2; y++) {
             for (int x = -size / 2; x <= size / 2; x++) {
                 float distance = x * x + y * y;
                 data[index] = (float) Math.exp(-distance / twoSigmaSquare) / sigmaRoot;
                 total += data[index];
                 index++;
+                if (index >= data.length)
+                    break outer;
             }
         }
 
